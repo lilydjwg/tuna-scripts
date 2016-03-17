@@ -31,7 +31,7 @@ import weechat as w
 import re
 
 SCRIPT_NAME = "bot2human"
-SCRIPT_AUTHOR = "Justin Wong & Hex Chain"
+SCRIPT_AUTHOR = "Justin Wong & Hexchain"
 SCRIPT_DESC = "Replace IRC message nicknames with regex match from chat text"
 SCRIPT_VERSION = "0.1"
 SCRIPT_LICENSE = "GPLv3"
