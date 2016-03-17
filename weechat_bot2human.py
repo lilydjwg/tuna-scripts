@@ -103,6 +103,6 @@ if __name__ == '__main__':
     parse_config()
 
     w.hook_modifier("irc_in_privmsg", "msg_cb", "")
-    w.hook_modifier("plugins.var.python."+SCRIPT_NAME+".*", "config_cb", "")
+    w.hook_config("plugins.var.python."+SCRIPT_NAME+".*", "config_cb", "")
 
 # vim: ts=4 sw=4 sts=4 expandtab
