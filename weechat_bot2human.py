@@ -80,8 +80,10 @@ def msg_cb(data, modifier, modifier_data, string):
         # w.prnt("", "%s, %s" % (parsed["nick"], bot))
         if parsed['nick'] == bot:
             for r in CONFIG['nick_content_res']:
-#                m = r.match(parsed['text'])  # parsed['text'] only exists in weechat version >= 1.3
-                m = r.match(parsed["arguments"][len(parsed["channel"])+2:])
+                if 'text' not in parsed:  # parsed['text'] only exists in weechat version >= 1.3
+                    m = r.match(parsed["arguments"][len(parsed["channel"])+2:])
+                else:
+                    m = r.match(parsed['text'])
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
