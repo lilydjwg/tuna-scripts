@@ -23,6 +23,7 @@
 
 # Changelog:
 #
+# 0.1.1: Bug Fixes
 # 0.1: Initial Release
 #
 
@@ -62,11 +63,9 @@ def parse_config():
                 re.compile(w.config_get_plugin(option))
             )
 
-    print(CONFIG)
-
 
 def config_cb(data, option, value):
-    print(data, option, value)
+    parse_config()
 
     return w.WEECHAT_RC_OK
 
@@ -85,6 +84,7 @@ def msg_cb(data, modifier, modifier_data, string):
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
+                nick = re.sub(r'\s', '_', nick)
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = text
                 matched = True
