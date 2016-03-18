@@ -23,6 +23,7 @@
 
 # Changelog:
 #
+# 0.2.0: Filter mIRC color and other control seq from message
 # 0.1.1: Bug Fixes
 # 0.1: Initial Release
 #
@@ -33,7 +34,7 @@ import re
 SCRIPT_NAME = "bot2human"
 SCRIPT_AUTHOR = "Justin Wong & Hexchain"
 SCRIPT_DESC = "Replace IRC message nicknames with regex match from chat text"
-SCRIPT_VERSION = "0.1"
+SCRIPT_VERSION = "0.2.0"
 SCRIPT_LICENSE = "GPLv3"
 
 DEFAULTS = {
