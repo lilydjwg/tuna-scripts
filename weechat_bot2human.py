@@ -117,7 +117,6 @@ def msg_cb(data, modifier, modifier_data, string):
                     continue
                 nick, text = m.group('nick'), m.group('text')
                 nick = re.sub(r'\s', '_', nick)
-                print(repr(nick))
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = text
                 matched = True
