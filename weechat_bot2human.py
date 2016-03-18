@@ -25,7 +25,7 @@
 #
 
 # Changelog:
-#
+# 0.2.2: Support ZNC timestamp
 # 0.2.1: Color filtering only applies on nicknames
 #        More than 3 nick rules can be defined
 # 0.2.0: Filter mIRC color and other control seq from message
@@ -39,22 +39,24 @@ import re
 SCRIPT_NAME = "bot2human"
 SCRIPT_AUTHOR = "Justin Wong & Hexchain"
 SCRIPT_DESC = "Replace IRC message nicknames with regex match from chat text"
-SCRIPT_VERSION = "0.2.0"
+SCRIPT_VERSION = "0.2.2"
 SCRIPT_LICENSE = "GPLv3"
 
 DEFAULTS = {
     'nick_re_count': '4',
     'nick_content_re.0': r'\[(?P<nick>[^:]+?)\] (?P<text>.*)',
-    'nick_content_re.1': r'\((?P<nick>[^:]+?)\) (?P<text>.*)',
-    'nick_content_re.2': r'<(?P<nick>[^:]+?)> (?P<text>.*)',
-    'nick_content_re.3': r'(\x03[0-9,]+)?\[(?P<nick>[^:]+?)\]\x03? (?P<text>.*)',
+    'nick_content_re.1': r'(\x03[0-9,]+)?\[(?P<nick>[^:]+?)\]\x03? (?P<text>.*)',
+    'nick_content_re.2': r'\((?P<nick>[^:]+?)\) (?P<text>.*)',
+    'nick_content_re.3': r'<(?P<nick>[^:]+?)> (?P<text>.*)',
     'bot_nicks': "",
+    'znc_ts_re': r'^(\[\d\d:\d\d:\d\d\] )?(.*)',
 }
 
 CONFIG = {
     'nick_re_count': -1,
     'nick_content_res': [],
     'bot_nicks': [],
+    'znc_ts_re': None,
 }
 
 
@@ -72,6 +74,7 @@ def parse_config():
         CONFIG['nick_content_res'].append(
             re.compile(w.config_get_plugin(option))
         )
+    CONFIG['znc_ts_re'] = re.compile(w.config_get_plugin('znc_ts_re'))
 
 
 def config_cb(data, option, value):
@@ -118,19 +121,20 @@ def msg_cb(data, modifier, modifier_data, string):
                 'text',
                 parsed["arguments"][len(parsed["channel"])+2:]
             )
-            # t = filter_color(t)
-            # print(t, repr(t))
+            # ZNC timestamp
+            ts = CONFIG['znc_ts_re'].match(t).group(1) or ""
+            t = CONFIG['znc_ts_re'].sub(r'\2', t)
+
             for r in CONFIG['nick_content_res']:
                 # parsed['text'] only exists in weechat version >= 1.3
-                m = r.search(t)
+                m = r.match(t)
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
                 nick = filter_color(nick)
                 nick = re.sub(r'\s', '_', nick)
                 parsed['host'] = parsed['host'].replace(bot, nick)
-                parsed['text'] = parsed['text'][:m.start()] + text
-                # print(nick, text)
+                parsed['text'] = ts + text
                 matched = True
                 break
             if matched:
