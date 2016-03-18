@@ -70,6 +70,31 @@ def config_cb(data, option, value):
     return w.WEECHAT_RC_OK
 
 
+def filter_color(msg):
+    # filter \x01 - \x19 control seq
+    # filter \x03{foreground}[,{background}] color string
+    def char_iter(msg):
+        state = "char"
+        for x in msg:
+            if state == "char":
+                if x == '\x03':
+                    state = "color"
+                    continue
+                if 0 < ord(x) <= 0x1f:
+                    continue
+                yield x
+            elif state == "color":
+                if '0' < x < '9':
+                    continue
+                elif x == ',':
+                    continue
+                else:
+                    state = 'char'
+                    yield x
+
+    return ''.join(char_iter(msg))
+
+
 def msg_cb(data, modifier, modifier_data, string):
     # w.prnt("blue", "test_msg_cb " + string)
     parsed = w.info_get_hashtable("irc_message_parse", {'message': string})
@@ -79,15 +104,20 @@ def msg_cb(data, modifier, modifier_data, string):
     for bot in CONFIG['bot_nicks']:
         # w.prnt("", "%s, %s" % (parsed["nick"], bot))
         if parsed['nick'] == bot:
+            t = parsed.get(
+                'text',
+                parsed["arguments"][len(parsed["channel"])+2:]
+            )
+            t = filter_color(t)
+            # print(t, repr(t))
             for r in CONFIG['nick_content_res']:
-                if 'text' not in parsed:  # parsed['text'] only exists in weechat version >= 1.3
-                    m = r.match(parsed["arguments"][len(parsed["channel"])+2:])
-                else:
-                    m = r.match(parsed['text'])
+                # parsed['text'] only exists in weechat version >= 1.3
+                m = r.search(t)
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
                 nick = re.sub(r'\s', '_', nick)
+                print(repr(nick))
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = text
                 matched = True
