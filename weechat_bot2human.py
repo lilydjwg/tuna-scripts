@@ -20,9 +20,14 @@
 #       and content. Default regexes are r'\[(?P<nick>.+?)\] (?P<text>.*)',
 #       r'\((?P<nick>.+?)\) (?P<text>.*)', and r'<(?P<nick>.+?)> (?P<text>.*)'
 #
+#   plugins.var.python.nick_re_count
+#       Number of rules defined
+#
 
 # Changelog:
 #
+# 0.2.1: Color filtering only applies on nicknames
+#        More than 3 nick rules can be defined
 # 0.2.0: Filter mIRC color and other control seq from message
 # 0.1.1: Bug Fixes
 # 0.1: Initial Release
@@ -38,13 +43,16 @@ SCRIPT_VERSION = "0.2.0"
 SCRIPT_LICENSE = "GPLv3"
 
 DEFAULTS = {
+    'nick_re_count': '4',
     'nick_content_re.0': r'\[(?P<nick>.+?)\] (?P<text>.*)',
     'nick_content_re.1': r'\((?P<nick>.+?)\) (?P<text>.*)',
     'nick_content_re.2': r'<(?P<nick>.+?)> (?P<text>.*)',
+    'nick_content_re.3': r'(\x03[0-9,]+)?\[(?P<nick>.+?)\]\x03? (?P<text>.*)',
     'bot_nicks': "",
 }
 
 CONFIG = {
+    'nick_re_count': -1,
     'nick_content_res': [],
     'bot_nicks': [],
 }
@@ -57,12 +65,13 @@ def parse_config():
         if not w.config_is_set_plugin(option):
             w.config_set_plugin(option, default)
 
+    CONFIG['nick_re_count'] = int(w.config_get_plugin('nick_re_count'))
     CONFIG['bot_nicks'] = w.config_get_plugin('bot_nicks').split(' ')
-    for option in DEFAULTS:
-        if option.startswith("nick_content_re"):
-            CONFIG['nick_content_res'].append(
-                re.compile(w.config_get_plugin(option))
-            )
+    for i in range(CONFIG['nick_re_count']):
+        option = "nick_content_re.{}".format(i)
+        CONFIG['nick_content_res'].append(
+            re.compile(w.config_get_plugin(option))
+        )
 
 
 def config_cb(data, option, value):
@@ -109,18 +118,21 @@ def msg_cb(data, modifier, modifier_data, string):
                 'text',
                 parsed["arguments"][len(parsed["channel"])+2:]
             )
-            t = filter_color(t)
+            # t = filter_color(t)
             # print(t, repr(t))
             for r in CONFIG['nick_content_res']:
                 # parsed['text'] only exists in weechat version >= 1.3
-                m = r.search(t)
+                m = r.match(t)
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
+                nick = filter_color(nick)
                 nick = re.sub(r'\s', '_', nick)
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = text
+                # print(nick, text)
                 matched = True
+                break
             if matched:
                 break
     else:
