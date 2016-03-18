@@ -44,10 +44,10 @@ SCRIPT_LICENSE = "GPLv3"
 
 DEFAULTS = {
     'nick_re_count': '4',
-    'nick_content_re.0': r'\[(?P<nick>.+?)\] (?P<text>.*)',
-    'nick_content_re.1': r'\((?P<nick>.+?)\) (?P<text>.*)',
-    'nick_content_re.2': r'<(?P<nick>.+?)> (?P<text>.*)',
-    'nick_content_re.3': r'(\x03[0-9,]+)?\[(?P<nick>.+?)\]\x03? (?P<text>.*)',
+    'nick_content_re.0': r'\[(?P<nick>[^:]+?)\] (?P<text>.*)',
+    'nick_content_re.1': r'\((?P<nick>[^:]+?)\) (?P<text>.*)',
+    'nick_content_re.2': r'<(?P<nick>[^:]+?)> (?P<text>.*)',
+    'nick_content_re.3': r'(\x03[0-9,]+)?\[(?P<nick>[^:]+?)\]\x03? (?P<text>.*)',
     'bot_nicks': "",
 }
 
@@ -122,14 +122,14 @@ def msg_cb(data, modifier, modifier_data, string):
             # print(t, repr(t))
             for r in CONFIG['nick_content_res']:
                 # parsed['text'] only exists in weechat version >= 1.3
-                m = r.match(t)
+                m = r.search(t)
                 if not m:
                     continue
                 nick, text = m.group('nick'), m.group('text')
                 nick = filter_color(nick)
                 nick = re.sub(r'\s', '_', nick)
                 parsed['host'] = parsed['host'].replace(bot, nick)
-                parsed['text'] = text
+                parsed['text'] = parsed['text'][:m.start()] + text
                 # print(nick, text)
                 matched = True
                 break
