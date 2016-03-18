@@ -49,7 +49,7 @@ DEFAULTS = {
     'nick_content_re.2': r'\((?P<nick>[^:]+?)\) (?P<text>.*)',
     'nick_content_re.3': r'<(?P<nick>[^:]+?)> (?P<text>.*)',
     'bot_nicks': "",
-    'znc_ts_re': r'^(\[\d\d:\d\d:\d\d\] )?(.*)',
+    'znc_ts_re': r'\[\d\d:\d\d:\d\d\]\s+',
 }
 
 CONFIG = {
@@ -122,8 +122,11 @@ def msg_cb(data, modifier, modifier_data, string):
                 parsed["arguments"][len(parsed["channel"])+2:]
             )
             # ZNC timestamp
-            ts = CONFIG['znc_ts_re'].match(t).group(1) or ""
-            t = CONFIG['znc_ts_re'].sub(r'\2', t)
+            ts = ""
+            mts = CONFIG['znc_ts_re'].match(t)
+            if mts:
+                ts = mts.group()
+                t = t[mts.end():]
 
             for r in CONFIG['nick_content_res']:
                 # parsed['text'] only exists in weechat version >= 1.3
