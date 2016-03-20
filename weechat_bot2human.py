@@ -145,7 +145,7 @@ def msg_cb(data, modifier, modifier_data, string):
     else:
         return string
 
-    return ":{host} {command} {channel} {text}".format(**parsed)
+    return ":{host} {command} {channel} :{text}".format(**parsed)
 
 
 if __name__ == '__main__':
