@@ -45,7 +45,7 @@ SCRIPT_LICENSE = "GPLv3"
 DEFAULTS = {
     'nick_re_count': '4',
     'nick_content_re.0': r'\[(?P<nick>[^:]+?)\] (?P<text>.*)',
-    'nick_content_re.1': r'(\x03[0-9,]+)?\[(?P<nick>[^:]+?)\]\x03? (?P<text>.*)',
+    'nick_content_re.1': r'(\x03[0-9,]+)?\[(?P<nick>[^:]+?)\]\x0f? (?P<text>.*)',
     'nick_content_re.2': r'\((?P<nick>[^:]+?)\) (?P<text>.*)',
     'nick_content_re.3': r'<(?P<nick>[^:]+?)> (?P<text>.*)',
     'bot_nicks': "",
