@@ -139,6 +139,8 @@ def msg_cb(data, modifier, modifier_data, string):
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = ts + text
                 matched = True
+                buffer = w.info_get("irc_buffer", "%s,%s" % (modifier_data, parsed['channel']))
+                add_nick(nick, buffer, "")
                 break
             if matched:
                 break
@@ -147,6 +149,21 @@ def msg_cb(data, modifier, modifier_data, string):
 
     return ":{host} {command} {channel} :{text}".format(**parsed)
 
+def add_nick(name, buffer, group):
+    # You may uncomment the following line if you want want these nicks grouped.
+    # However, Glowing Bear will error and won't show you added nicks, if
+    # the group is empty at the moment you open the channel buffer.
+    # group = get_nick_group(buffer, 'bot2human')
+
+    if not w.nicklist_search_nick(buffer, group, name):
+        w.nicklist_add_nick(buffer, group, name, "weechat.color.nicklist_group", "~", "lightgreen", 1)
+    return w.WEECHAT_RC_OK
+
+def get_nick_group(buffer, group_name):
+    group = w.nicklist_search_group(buffer, "", group_name)
+    if not group:
+        group = w.nicklist_add_group(buffer, "", group_name, "weechat.color.nicklist_group", 1)
+    return group
 
 if __name__ == '__main__':
     w.register(SCRIPT_NAME, SCRIPT_AUTHOR, SCRIPT_VERSION, SCRIPT_LICENSE,
