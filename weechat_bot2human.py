@@ -150,10 +150,7 @@ def msg_cb(data, modifier, modifier_data, string):
     return ":{host} {command} {channel} :{text}".format(**parsed)
 
 def add_nick(name, buffer, group):
-    # You may uncomment the following line if you want want these nicks grouped.
-    # However, Glowing Bear will error and won't show you added nicks, if
-    # the group is empty at the moment you open the channel buffer.
-    # group = get_nick_group(buffer, 'bot2human')
+    group = get_nick_group(buffer, 'bot2human')
 
     if not w.nicklist_search_nick(buffer, group, name):
         w.nicklist_add_nick(buffer, group, name, "weechat.color.nicklist_group", "~", "lightgreen", 1)
@@ -165,6 +162,11 @@ def get_nick_group(buffer, group_name):
         group = w.nicklist_add_group(buffer, "", group_name, "weechat.color.nicklist_group", 1)
     return group
 
+def nicklist_nick_added_cb(data, signal, buffer):
+    group = get_nick_group(buffer, 'bot2human')
+
+    return w.WEECHAT_RC_OK
+
 if __name__ == '__main__':
     w.register(SCRIPT_NAME, SCRIPT_AUTHOR, SCRIPT_VERSION, SCRIPT_LICENSE,
                SCRIPT_DESC, "", "")
@@ -173,5 +175,11 @@ if __name__ == '__main__':
 
     w.hook_modifier("irc_in_privmsg", "msg_cb", "")
     w.hook_config("plugins.var.python."+SCRIPT_NAME+".*", "config_cb", "")
+    
+    # Glowing Bear will choke if a nick is added into a newly created group.
+    # As a workaround, we add the group as soon as possible BEFORE Glowing Bear loads groups,
+    # and we must do that AFTER EVERY nicklist reload. nicklist_nick_added satisfies both.
+    # TODO(quietlynn): Find better signals to hook instead.
+    w.hook_signal("nicklist_nick_added", "nicklist_nick_added_cb", "")
 
 # vim: ts=4 sw=4 sts=4 expandtab
