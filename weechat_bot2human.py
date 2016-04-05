@@ -25,6 +25,7 @@
 #
 
 # Changelog:
+# 0.3.0: Add relayed nicks into nicklist, enabling completion
 # 0.2.2: Support ZNC timestamp
 # 0.2.1: Color filtering only applies on nicknames
 #        More than 3 nick rules can be defined
@@ -37,9 +38,9 @@ import weechat as w
 import re
 
 SCRIPT_NAME = "bot2human"
-SCRIPT_AUTHOR = "Justin Wong & Hexchain"
+SCRIPT_AUTHOR = "Justin Wong & Hexchain & quietlynn"
 SCRIPT_DESC = "Replace IRC message nicknames with regex match from chat text"
-SCRIPT_VERSION = "0.2.2"
+SCRIPT_VERSION = "0.3.0"
 SCRIPT_LICENSE = "GPLv3"
 
 DEFAULTS = {
