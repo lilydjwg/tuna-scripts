@@ -98,7 +98,7 @@ def filter_color(msg):
                     continue
                 yield x
             elif state == "color":
-                if '0' < x < '9':
+                if '0' <= x <= '9':
                     continue
                 elif x == ',':
                     continue
