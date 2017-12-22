@@ -87,27 +87,7 @@ def config_cb(data, option, value):
 def filter_color(msg):
     # filter \x01 - \x19 control seq
     # filter \x03{foreground}[,{background}] color string
-    def char_iter(msg):
-        state = "char"
-        for x in msg:
-            if state == "char":
-                if x == '\x03':
-                    state = "color"
-                    continue
-                if 0 < ord(x) <= 0x1f:
-                    continue
-                yield x
-            elif state == "color":
-                if '0' < x < '9':
-                    continue
-                elif x == ',':
-                    continue
-                else:
-                    state = 'char'
-                    yield x
-
-    return ''.join(char_iter(msg))
-
+    return re.sub(r'\x03[\d,]+|[\x00-\x1f]', '', msg)
 
 def msg_cb(data, modifier, modifier_data, string):
     # w.prnt("blue", "test_msg_cb " + string)
