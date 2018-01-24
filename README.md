@@ -14,3 +14,4 @@
 使用方法:
  - 将 [weechat_bot2human.py](weechat_bot2human.py) 放到 `~/.weechat/python/autoload` 中
  - 设置需要替换的 bot 名，多个 bot 用空格分割，例如 `/set plugins.var.python.bot2human.bot_nicks teleboto tg2arch`
+ - Debian 需要额外安装 `weechat-python` 包
