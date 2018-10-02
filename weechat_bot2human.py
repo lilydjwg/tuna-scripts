@@ -117,6 +117,7 @@ def msg_cb(data, modifier, modifier_data, string):
                 nick, text = m.group('nick'), m.group('text')
                 nick = filter_color(nick)
                 nick = re.sub(r'\s', '_', nick)
+                nick = nick[:20]
                 parsed['host'] = parsed['host'].replace(bot, nick)
                 parsed['text'] = ts + text
                 matched = True
